@@ -1,6 +1,8 @@
 # SpannableStringBuilder
 参考自：https://github.com/jaychang0917/SimpleText
+
 &nbsp;
+
 Kotlin编写，封装常用的Span，简化SpannableString的编写
 
 &nbsp;

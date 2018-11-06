@@ -1,13 +1,17 @@
 # SpannableStringBuilder
+参考自：https://github.com/jaychang0917/SimpleText
+
+&nbsp;
+
 Kotlin编写，封装常用的Span，简化SpannableString的编写
 
-
+&nbsp;
 
 ⚠️注意：由于SpannableString同时设置了ClickableSpan和ForegroundColorSpan后，发现ForegroundColorSpan不生效，
 所以先设置点击事件onClick（即先设置ClickableSpan），再设置textColor (即ForegroundColorSpan）
 
-
-调用比较简单：
+&nbsp;
+### 调用比较简单：
 
 ``` kotlin
  val content1 = MySpannableString(this, "前往下一步即表示您已阅读并接受Booking.com之条款及细则和隐私条款")
@@ -27,21 +31,21 @@ Kotlin编写，封装常用的Span，简化SpannableString的编写
 
 其中first（“XXX”）代表第一个出现的目标子串，后续的onClick() size()等都是对该目标子串的设置
 
-效果图：
+![效果图：](https://github.com/chenyucheng97/SpannableStringBuilder/blob/master/app/WechatIMG195.jpeg)
 
 
 
-支持的Span：
-
-AbsoluteSizeSpan
-RelativeSizeSpan
-StyleSpan
-TypefaceSpan
-StrikethroughSpan
-UnderlineSpan
-BulletSpan
-ForegroundColorSpan
-SubscriptSpan
-SuperscriptSpan
-ClickableSpan
+### 支持的Span：
+&nbsp;
+- AbsoluteSizeSpan
+- RelativeSizeSpan
+- StyleSpan
+- TypefaceSpan
+- StrikethroughSpan
+- UnderlineSpan
+- BulletSpan
+- ForegroundColorSpan
+- SubscriptSpan
+- SuperscriptSpan
+- ClickableSpan
 

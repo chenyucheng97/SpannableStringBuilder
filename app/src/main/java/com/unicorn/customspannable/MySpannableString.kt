@@ -15,22 +15,22 @@ import android.widget.TextView
 
 /**
  * Created by cyc on 2018/11/5.
+ *
+ * 常用Span封装，不支持点击时文字颜色和背景色的设置（使用场景少，暂不添加）
+ * 支持设置字体颜色、大小、下划线、删除线、点击事件 等，
+ * 可以对一个字符串中的多个目标子串进行设置Span
+ *
  */
-class MySpannableString(private val context: Context, private val text: CharSequence) : SpannableString(text) {
-
+class MySpannableString(private val context: Context, text: CharSequence) : SpannableString(text) {
 
     private val spanMode = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
-    private val rangeList = mutableListOf<Pair<Int, Int>>()
-
+    // 初始时，待处理的索引范围为全部字符串
+    private val rangeList = mutableListOf(Pair(0, text.length))
     private var textColor: Int = 0
-
-    init {
-        rangeList.add(Pair(0, text.length))
-    }
 
 
     /**
-     *  匹配出现的第一个目标子串，并记录开始和结束的index
+     *  匹配出现的第一个目标子串[target]，并记录开始和结束的index
      */
     fun first(target: String): MySpannableString {
         rangeList.clear()
@@ -41,7 +41,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     *  匹配出现的最后一个目标子串，并记录开始和结束的index
+     *  匹配出现的最后一个目标子串[target]，并记录开始和结束的index
      */
     fun last(target: String): MySpannableString {
         rangeList.clear()
@@ -52,7 +52,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     *   匹配出现的所有目标子串，并记录开始和结束的index
+     *   匹配出现的所有目标子串[target]，并记录开始和结束的index
      */
     fun all(target: String): MySpannableString {
         rangeList.clear()
@@ -65,7 +65,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     *  记录src中目标子串出现的位置
+     *  记录源字符串[src]中目标子串 [target]出现的索引位置
      */
     fun indexesOf(src: String, target: String): MutableList<Int> {
         val positions = mutableListOf<Int>()
@@ -78,7 +78,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     * 手动输入一个起点和终点的index
+     * 手动输入一个起点索引[from]和终点索引[to]
      */
     fun range(from: Int, to: Int): MySpannableString {
         rangeList.clear()
@@ -88,7 +88,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     * 手动输入所有起点和终点的index
+     * 手动输入所有起点和终点的索引范围[ranges]
      */
     fun ranges(ranges: MutableList<Pair<Int, Int>>): MySpannableString {
         rangeList.clear()
@@ -97,7 +97,7 @@ class MySpannableString(private val context: Context, private val text: CharSequ
     }
 
     /**
-     * 手动输入起点和终点的子串
+     * 计算两个字符串[startText] 和 [endText]之间的字符串的索引，加入到待处理的集合中，后续的Span设置都是对该索引范围内的字串进行的
      */
     fun between(startText: String, endText: String): MySpannableString {
         rangeList.clear()
@@ -108,6 +108,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置文字绝对大小为[dp]
+     */
     fun size(dp: Int): MySpannableString {
         for (range in rangeList) {
             setSpan(AbsoluteSizeSpan(dp, true), range.first, range.second, spanMode)
@@ -115,6 +118,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置文字相对大小，指相对于文本设定的大小的相对比例为[proportion]
+     */
     fun scaleSize(proportion: Int): MySpannableString {
         for (range in rangeList) {
             setSpan(RelativeSizeSpan(proportion.toFloat()), range.first, range.second, spanMode)
@@ -122,6 +128,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置样式（粗体）
+     */
     fun bold(): MySpannableString {
         for (range in rangeList) {
             setSpan(StyleSpan(Typeface.BOLD), range.first, range.second, spanMode)
@@ -129,6 +138,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置样式（斜体）
+     */
     fun italic(): MySpannableString {
         for (range in rangeList) {
             setSpan(StyleSpan(Typeface.ITALIC), range.first, range.second, spanMode)
@@ -136,6 +148,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置样式（正常）
+     */
     fun normal(): MySpannableString {
         for (range in rangeList) {
             setSpan(StyleSpan(Typeface.NORMAL), range.first, range.second, spanMode)
@@ -143,6 +158,19 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串设置样式（粗斜体）
+     */
+    fun bold_italic(): MySpannableString {
+        for (range in rangeList) {
+            setSpan(StyleSpan(Typeface.BOLD_ITALIC), range.first, range.second, spanMode)
+        }
+        return this
+    }
+
+    /**
+     * 字体样式，可以设置不同的字体，比如系统自带的SANS_SERIF、MONOSPACE和SERIF
+     */
     fun font(font: String): MySpannableString {
         for (range in rangeList) {
             setSpan(TypefaceSpan(font), range.first, range.second, spanMode)
@@ -150,6 +178,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串添加删除线
+     */
     fun strikethrough(): MySpannableString {
         for (range in rangeList) {
             setSpan(StrikethroughSpan(), range.first, range.second, spanMode)
@@ -157,6 +188,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 给target字串添加下划线
+     */
     fun underline(): MySpannableString {
         for (range in rangeList) {
             setSpan(UnderlineSpan(), range.first, range.second, spanMode)
@@ -164,6 +198,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 类似于HTML中的<li>标签的圆点效果,[dp]表示圆点和字体的间距，[colorRes]表示圆点的颜色
+     */
     fun bullet(dp: Int, @ColorRes colorRes: Int?): MySpannableString {
         for (range in rangeList) {
             setSpan(BulletSpan(dp, colorRes ?: textColor), range.first, range.second, spanMode)
@@ -171,7 +208,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
-
+    /**
+     * 字体颜色 [colorRes]表示target字串的字体颜色
+     */
     fun textColor(@ColorRes colorRes: Int): MySpannableString {
         textColor = ContextCompat.getColor(context, colorRes)
         for (range in rangeList) {
@@ -180,7 +219,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
-
+    /**
+     * 将target字串作为下标
+     */
     fun subscript(): MySpannableString {
         for (range in rangeList) {
             setSpan(SubscriptSpan(), range.first, range.second, spanMode)
@@ -188,6 +229,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
+    /**
+     * 将target字串作为上标
+     */
     fun superscript(): MySpannableString {
         for (range in rangeList) {
             setSpan(SuperscriptSpan(), range.first, range.second, spanMode)
@@ -195,7 +239,9 @@ class MySpannableString(private val context: Context, private val text: CharSequ
         return this
     }
 
-
+    /**
+     * 给[textView]设置一个点击事件[onTextClickListener]
+     */
     fun onClick(textView: TextView, onTextClickListener: () -> Unit): MySpannableString {
         for (range in rangeList) {
             val span = object : ClickableSpan() {

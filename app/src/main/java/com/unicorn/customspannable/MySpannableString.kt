@@ -23,9 +23,11 @@ import android.widget.TextView
  */
 class MySpannableString(private val context: Context, text: CharSequence) : SpannableString(text) {
 
-    private val spanMode = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+    @PublishedApi
+    internal  val spanMode = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     // 初始时，待处理的索引范围为全部字符串
-    private val rangeList = mutableListOf(Pair(0, text.length))
+    @PublishedApi
+    internal  val rangeList = mutableListOf(Pair(0, text.length))
     private var textColor: Int = 0
 
 
@@ -242,7 +244,7 @@ class MySpannableString(private val context: Context, text: CharSequence) : Span
     /**
      * 给[textView]设置一个点击事件[onTextClickListener]
      */
-    fun onClick(textView: TextView, onTextClickListener: () -> Unit): MySpannableString {
+    inline fun onClick(textView: TextView, crossinline onTextClickListener: () -> Unit): MySpannableString {
         for (range in rangeList) {
             val span = object : ClickableSpan() {
                 override fun onClick(widget: View?) {

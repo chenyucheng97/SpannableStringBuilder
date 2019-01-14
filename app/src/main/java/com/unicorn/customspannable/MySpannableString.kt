@@ -21,49 +21,43 @@ import android.widget.TextView
  * 可以对一个字符串中的多个目标子串进行设置Span
  *
  */
-class MySpannableString(private val context: Context, text: CharSequence) : SpannableString(text) {
+class MySpannableString(private val context: Context,text: CharSequence) : SpannableString(text) {
 
     @PublishedApi
-    internal  val spanMode = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
+    internal val spanMode = Spanned.SPAN_EXCLUSIVE_EXCLUSIVE
     // 初始时，待处理的索引范围为全部字符串
     @PublishedApi
-    internal  val rangeList = mutableListOf(Pair(0, text.length))
+    internal val rangeList = mutableListOf(Pair(0, text.length))
     private var textColor: Int = 0
 
 
     /**
      *  匹配出现的第一个目标子串[target]，并记录开始和结束的index
      */
-    fun first(target: String): MySpannableString {
+    fun first(target: String) = apply {
         rangeList.clear()
         val index = toString().indexOf(target)
         val range = Pair(index, index + target.length)
         rangeList.add(range)
-        return this
     }
 
     /**
      *  匹配出现的最后一个目标子串[target]，并记录开始和结束的index
      */
-    fun last(target: String): MySpannableString {
+    fun last(target: String) = apply {
         rangeList.clear()
         val index = toString().lastIndexOf(target)
         val range = Pair(index, index + target.length)
         rangeList.add(range)
-        return this
     }
 
     /**
      *   匹配出现的所有目标子串[target]，并记录开始和结束的index
      */
-    fun all(target: String): MySpannableString {
+    fun all(target: String) = apply {
         rangeList.clear()
         val indexes = indexesOf(toString(), target)
-        for (index in indexes) {
-            val range = Pair(index, index + target.length)
-            rangeList.add(range)
-        }
-        return this
+        indexes.map { rangeList.add(Pair(it, it + target.length)) }
     }
 
     /**
@@ -82,181 +76,117 @@ class MySpannableString(private val context: Context, text: CharSequence) : Span
     /**
      * 手动输入一个起点索引[from]和终点索引[to]
      */
-    fun range(from: Int, to: Int): MySpannableString {
+    fun range(from: Int, to: Int) = apply {
         rangeList.clear()
         val range = Pair(from, to + 1)
         rangeList.add(range)
-        return this
     }
 
     /**
      * 手动输入所有起点和终点的索引范围[ranges]
      */
-    fun ranges(ranges: MutableList<Pair<Int, Int>>): MySpannableString {
+    fun ranges(ranges: MutableList<Pair<Int, Int>>)= apply {
         rangeList.clear()
         rangeList.addAll(ranges)
-        return this
     }
 
     /**
      * 计算两个字符串[startText] 和 [endText]之间的字符串的索引，加入到待处理的集合中，后续的Span设置都是对该索引范围内的字串进行的
      */
-    fun between(startText: String, endText: String): MySpannableString {
+    fun between(startText: String, endText: String) = apply {
         rangeList.clear()
         val startIndex = toString().indexOf(startText) + startText.length + 1
         val endIndex = toString().lastIndexOf(endText) - 1
         val range = Pair(startIndex, endIndex)
         rangeList.add(range)
-        return this
     }
 
     /**
      * 给target字串设置文字绝对大小为[dp]
      */
-    fun size(dp: Int): MySpannableString {
-        for (range in rangeList) {
-            setSpan(AbsoluteSizeSpan(dp, true), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun size(dp: Int) = applySpan(AbsoluteSizeSpan(dp, true))
 
     /**
      * 给target字串设置文字相对大小，指相对于文本设定的大小的相对比例为[proportion]
      */
-    fun scaleSize(proportion: Int): MySpannableString {
-        for (range in rangeList) {
-            setSpan(RelativeSizeSpan(proportion.toFloat()), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun scaleSize(proportion: Int) = applySpan(RelativeSizeSpan(proportion.toFloat()))
 
     /**
      * 给target字串设置样式（粗体）
      */
-    fun bold(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(StyleSpan(Typeface.BOLD), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun bold() = applySpan(Typeface.BOLD)
 
     /**
      * 给target字串设置样式（斜体）
      */
-    fun italic(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(StyleSpan(Typeface.ITALIC), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun italic() = applySpan(Typeface.ITALIC)
 
     /**
      * 给target字串设置样式（正常）
      */
-    fun normal(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(StyleSpan(Typeface.NORMAL), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun normal() = applySpan(Typeface.NORMAL)
 
     /**
      * 给target字串设置样式（粗斜体）
      */
-    fun bold_italic(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(StyleSpan(Typeface.BOLD_ITALIC), range.first, range.second, spanMode)
-        }
-        return this
+    fun bold_italic() = applySpan(Typeface.BOLD_ITALIC)
+
+    private fun MySpannableString.applySpan(span: Int) = apply {
+        rangeList.map { setSpan(StyleSpan(span), it.first, it.second, spanMode) }
+    }
+
+    public fun MySpannableString.applySpan(span: Any) = apply {
+        rangeList.map { setSpan(span, it.first, it.second, spanMode) }
     }
 
     /**
      * 字体样式，可以设置不同的字体，比如系统自带的SANS_SERIF、MONOSPACE和SERIF
      */
-    fun font(font: String): MySpannableString {
-        for (range in rangeList) {
-            setSpan(TypefaceSpan(font), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun font(font: String) = applySpan(TypefaceSpan(font))
 
     /**
      * 给target字串添加删除线
      */
-    fun strikethrough(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(StrikethroughSpan(), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun strikethrough() = applySpan(StrikethroughSpan())
 
     /**
      * 给target字串添加下划线
      */
-    fun underline(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(UnderlineSpan(), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun underline() = applySpan(UnderlineSpan())
 
     /**
      * 类似于HTML中的<li>标签的圆点效果,[dp]表示圆点和字体的间距，[colorRes]表示圆点的颜色
      */
-    fun bullet(dp: Int, @ColorRes colorRes: Int?): MySpannableString {
-        for (range in rangeList) {
-            setSpan(BulletSpan(dp, colorRes ?: textColor), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun bullet(dp: Int, @ColorRes colorRes: Int?) = applySpan(BulletSpan(dp, colorRes ?: textColor))
 
     /**
      * 字体颜色 [colorRes]表示target字串的字体颜色
      */
-    fun textColor(@ColorRes colorRes: Int): MySpannableString {
-        textColor = ContextCompat.getColor(context, colorRes)
-        for (range in rangeList) {
-            setSpan(ForegroundColorSpan(textColor), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun textColor(@ColorRes colorRes: Int) = applySpan(ForegroundColorSpan(ContextCompat.getColor(context, colorRes)))
 
     /**
      * 将target字串作为下标
      */
-    fun subscript(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(SubscriptSpan(), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun subscript() = applySpan(SubscriptSpan())
 
     /**
      * 将target字串作为上标
      */
-    fun superscript(): MySpannableString {
-        for (range in rangeList) {
-            setSpan(SuperscriptSpan(), range.first, range.second, spanMode)
-        }
-        return this
-    }
+    fun superscript() = applySpan(SuperscriptSpan())
 
     /**
      * 给[textView]设置一个点击事件[onTextClickListener]
      */
-    inline fun onClick(textView: TextView, crossinline onTextClickListener: () -> Unit): MySpannableString {
-        for (range in rangeList) {
-            val span = object : ClickableSpan() {
-                override fun onClick(widget: View?) {
-                    onTextClickListener.invoke()
-                }
+    inline fun onClick(textView: TextView, crossinline onTextClickListener: () -> Unit) = apply {
+        val span = object : ClickableSpan() {
+            override fun onClick(widget: View?) {
+                onTextClickListener.invoke()
             }
-            setSpan(span, range.first, range.second, spanMode)
         }
+        applySpan(span)
 
         textView.highlightColor = Color.TRANSPARENT
         textView.movementMethod = LinkMovementMethod.getInstance()
-        return this
     }
 
 }
